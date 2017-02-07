@@ -185,10 +185,10 @@ def get_blacklist ():
 		return []
 
 
-def get_CITES ():
+def get_Allergens ():
 	
 	# Open the Retrieve_Allergenic.py script to either check the status of the
-	# user provided CITES database or obtain a new copy of the database
+	# user provided Allergens database or obtain a new copy of the database
 	logging.debug('Getting path to Retrieve_Allergenic.py script.')
 	dir, file = os.path.split(os.path.realpath(sys.argv[0]))
 	CITES_path = dir + '/Retrieve_Allergenic.py'
@@ -200,22 +200,22 @@ def get_CITES ():
 		path = call([CITES_path, '-db'] + args.cd + ['-l', args.l, '-lf', args.lf])
 
 
-def get_CITES_dic ():
+def get_Allergens_dic ():
 	
-	# open the local CITES database, return a dictionary
-	# containing the CITES information with the taxids as keys
+	# open the local Allergens database, return a dictionary
+	# containing the Allergsn information with the taxids as keys
 	logging.debug('Parsing through list of CITES dictionaries.')
 
 	CITES_dic = {}
 	for path in args.cd:
-		logging.debug('Reading CITES information from file: %s.' % path)
+		logging.debug('Reading Allergens information from file: %s.' % path)
 		with open(path, 'rb') as csvfile:
 			reader = csv.reader(csvfile)		
 			for line in reader:
 				if line[0] != 'Date' and line[0][0] != '#':
-					CITES_dic[line[0]] = line[1:]
+					Allergens_dic[line[0]] = line[1:]
 
-	return CITES_dic
+	return Allergens_dic
 
 	
 def obtain_tax (code):
@@ -407,27 +407,27 @@ def parse_online_blast (seq_list, CITES_dic, blacklist):
 						str(hsp.expect), str(hsp.bits), taxon[0], taxon[1]], CITES_dic, blacklist)
 
 
-def filter_hits (blast, CITES_dic, blacklist):
+def filter_hits (blast, Allergen_dic, blacklist):
 	
 	# filter the blast hits, based on the minimum
 	# identity, minimum coverage, e-value and the user blacklist
 	if float(blast[4]) >= args.mi and int(blast[5]) >= args.mc and float(blast[7]) <= args.me:
 		if blast[2] not in blacklist and blast[3] not in blacklist:
-			results, flag_cites = blast, False
+			results, flag_allergen = blast, False
 			blast[6] = round((float(blast[5])/float(blast[6]))*100, 2)
 			del results[3]
 
 			# check if the taxon id of the blast hit
 			# is present in the CITES_dic
-			if blast[8] in CITES_dic:
-				logging.debug('Appending CITES info to blast hit.')
-				results += CITES_dic[blast[8]][1:]				
-				flag_cites = True
+			if blast[8] in Allergen_dic:
+				logging.debug('Appending Allergen info to blast hit.')
+				results += ['Yes']				
+				flag_allergen = True
 			else:
-				results += ['','','']
+				results += ['No']
 			
 			# write the results
-			write_results(results, 'a', 'td', flag_cites)
+			write_results(results, 'a', 'td', flag_allergen)
 
 
 def parse_seq_file (CITES_dic, blacklist):
@@ -498,12 +498,12 @@ def main ():
 
 	# Check if there is a more recent CITES list online
 	if args.ad != True:
-		logging.info('Checking the status of the current CITES database.')
-		get_CITES()
+		logging.info('Checking the status of the current Allergens database.')
+		get_Allergens()
 
 	# create a dictionary containing the local CITES set	
 	logging.info('Reading the CITES database(s) from {0}'.format(args.cd))
-	CITES_dic = get_CITES_dic()
+	CITES_dic = get_Allergens_dic()
 
 	# create a list with the blacklisted genbank ids
 	logging.info('Reading the user Taxon ID blacklist.')
@@ -523,7 +523,7 @@ input_	# create a blank result file and write the header
 		'Bit score',
 		'Taxon ID',
 		'Species name',
-		'NCBI taxon name'
+		'Allergenic'
 	]
 	write_results(header, 'w', 'th', False)
 
