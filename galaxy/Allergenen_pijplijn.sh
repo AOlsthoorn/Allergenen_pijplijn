@@ -1,6 +1,6 @@
 #!/bin/bash
 		#  bash script aanpasssen naar Retrieve_Allergenic.py
-# check the CITES database, if local update if needed, if not present download
+# check the Allergens database, if local update if needed, if not present make new one
 # set the script arguments afterwards so the new database is used regardless of 
 # user imput.
 if [ "${10}" == "local" ]
@@ -8,17 +8,17 @@ then
 	# force download or check download the user provided databse, skip if argument
 	# is set to avoid download
 	if [ "${12}" == "force" ]; then
-		/home/galaxy/Tools/HTS-barcode-checker-Allergenic/src/Retrieve_Allergenic.py -f -db "${11}" > /dev/null 2>&1
+		/home/galaxy/Tools/Allergenen_pijplijn/src/Retrieve_Allergenic.py -f -db "${11}" > /dev/null 2>&1
 	elif [ "${12}" == "check" ]; then
-		/home/galaxy/Tools/HTS-barcode-checker-Allergenic/src/Retrieve_Allergenic.py -db "${11}" > /dev/null 2>&1
+		/home/galaxy/Tools/Allergenen_pijplijn/src/Retrieve_Allergenic.py -db "${11}" > /dev/null 2>&1
 	fi
-	# set the script arguments with the new CITES path
+	# set the script arguments with the new Allergens path
 	set -- "${@:1:9}" "${11}" "${@:13}"
 else
-	# if no database is provided, get the default CITES_db from the identify tool folder
-	Allergen_db="/home/galaxy/Tools/HTS-barcode-checker-Allergenic/resources/Allergens_db.csv"
+	# if no database is provided, get the default Allergens_db from the identify tool folder
+	Allergen_db="/home/galaxy/Tools/Allergenen_pijplijn/resources/Allergens_db.csv"
 	# run the Retrieve Allergenic script to update the default file if needed
-	/home/galaxy/Tools/HTS-barcode-checker-Allergenic/src/Retrieve_Allergenic.py -db "${Allergen_db}" > /dev/null 2>&1
+	/home/galaxy/Tools/Allergenen_pijplijn/src/Retrieve_Allergenic.py -db "${Allergen_db}" > /dev/null 2>&1
 	# copy the default allergen db so it can be included in the galaxy history
 	cp "${Allergen_db}" "primary_${11}_allergen-db_visible_csv"
 	# set the script arguments with the new Allergen path
@@ -53,22 +53,22 @@ then
 			# set the output path
 			output="${file%.*}".tsv
 
-			# Run the HTS-barcode-checker command and capture the output
+			# Run the Allergenen_pijplijn command and capture the output
 			if [ "$4" == "-lb" ]; then
 				# local commanand
-				HTS-Barcode-Checker -i "$file" -o "$output" -lb -tf /home/galaxy/ExtraRef/taxonid_names.tsv -bd "$5" -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
+				Allergenen_pijplijn -i "$file" -o "$output" -lb -tf /home/galaxy/ExtraRef/taxonid_names.tsv -bd "$5" -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
 			else
 				# check if the file contains less then a 100 reads, if more skip the online blast
 				# to prevent flooding of the ncbi servers
 				if [ $(grep -c ">" "$file") -le 100 ]; then
 					# online command
-					HTS-Barcode-Checker -i "$file" -o "$output" -ba "$4" -bd "$5"  -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
+					Allergenen_pijplijn -i "$file" -o "$output" -ba "$4" -bd "$5"  -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
 				else
 					# if more then a 100 reads, write the following output
 					echo "$file contains to many reads for online blasting, switch to local blast" > "$output"
 				fi
 			fi
-			# ZIP the HTS-barcode-checker output files to the temp zip file
+			# ZIP the Allergenen_pijplijn output files to the temp zip file
 			zip -q -9 "$temp_zip" "$output"
 			# remove the output files
 			rm "$file" "$output"
@@ -77,18 +77,18 @@ then
 	# move the temp zip file to the galaxy output zip file
 	mv "$temp_zip" "$3"
 
-# if no zip file is provided, run one of the following commands, the HTS-barcode-checker output is immediatly written to the
+# if no zip file is provided, run one of the following commands, the Allergenen_pijplijn output is immediatly written to the
 # galaxy output filepath provided
 else
 	if [ "$4" == "-lb" ]; then
 		# local blast command
-		HTS-Barcode-Checker -i "$2" -o "$3" -lb -tf /home/galaxy/ExtraRef/taxonid_names.tsv -bd "$5" -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
+		Allergenen_pijplijn -i "$2" -o "$3" -lb -tf /home/galaxy/ExtraRef/taxonid_names.tsv -bd "$5" -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
 	else
 		# check if the file contains less then a 100 reads, if more skip the online blast
 		# to prevent flooding of the ncbi servers
 		if [ $(grep -c ">" "$2") -le 100 ]; then
 			# online blast command
-			HTS-Barcode-Checker -i "$2" -o "$3" -ba "$4" -bd "$5"  -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
+			Allergenen_pijplijn -i "$2" -o "$3" -ba "$4" -bd "$5"  -hs "$6" -mi "$7" -mc "$8" -me "$9" -ad -cd "${@:10}" > /dev/null 2>&1
 		else
 			# if more then a 100 reads, write the following output
 			echo "$file contains to many reads for online blasting, switch to local blast" > "$3"
