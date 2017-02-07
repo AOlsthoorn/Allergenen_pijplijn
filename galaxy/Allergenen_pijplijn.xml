@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<tool id="HTS-barcode-checker-Allergenic" name="HTS barcode-checker-Allergenic" version="0.8" force_history_refresh="True">
+<tool id="Allergenen_pijplijn" name="Allergenen_pijplijn" version="0.9" force_history_refresh="True">
 	<description>Scan a fasta file for Allergen species.</description>
 
 	<!-- collect the parameters and provide these to the wrapper script -->
 	<command interpreter="bash">
-		HTS-barcode-checker-Allergenic.sh
+		Allergenen_pijplijn.sh
 		$input_type.input_format
 		#if $input_type.input_format == "hist"
 			$input_type.input_seq
@@ -174,9 +174,9 @@
 
 	<help>
 
-HTS-barcode-checker-Allergenic
+Allergenen_pijplijn
 
-The HTS-barcode-checker-Allergenic takes a fasta file and BLASTs the sequence against a reference database. The tool checks the blast results for allergenic species and reports these to the user.
+The Allergenen_pijplijn takes a fasta file and BLASTs the sequence against a reference database. The tool checks the blast results for allergenic species and reports these to the user.
 
 .. class:: warningmark
 
