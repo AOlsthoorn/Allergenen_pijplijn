@@ -206,7 +206,7 @@ def get_Allergens_dic ():
 	# containing the Allergsn information with the taxids as keys
 	logging.debug('Parsing through list of CITES dictionaries.')
 
-	CITES_dic = {}
+	Allergens_dic = {}
 	for path in args.cd:
 		logging.debug('Reading Allergens information from file: %s.' % path)
 		with open(path, 'rb') as csvfile:
