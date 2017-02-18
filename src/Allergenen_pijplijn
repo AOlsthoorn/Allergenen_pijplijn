@@ -509,7 +509,7 @@ def main ():
 	logging.info('Reading the user Taxon ID blacklist.')
 	blacklist = get_blacklist()
 
-input_	# create a blank result file and write the header
+	# create a blank result file and write the header
 	if args.ah:
 		print_file_contents(resources + '/header.html',True)
 	header = [ 
